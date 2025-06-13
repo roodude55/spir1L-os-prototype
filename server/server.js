@@ -1,5 +1,5 @@
 // server/server.js
-// Spiral-OS Dream Scene: WebSocket CLI backend
+// Spiral-OS Dream Scene CLI backend with basic world-building commands
 
 const express = require("express");
 const http = require("http");
@@ -10,17 +10,23 @@ const app = express();
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
-// Serve static files from public/
 app.use(express.static(path.join(__dirname, "../public")));
 
-// Simple command handler
+// CLI command history for session
+let cliHistory = [];
+
 wss.on("connection", (ws) => {
   ws.on("message", (message) => {
     let cmd = message.toString().trim();
-    if (/^spawn (box|sphere)$/i.test(cmd)) {
+    cliHistory.push(cmd);
+    if (/^spawn (box|sphere|diamond)$/i.test(cmd)) {
       ws.send(JSON.stringify({ type: "spawn", object: cmd.split(" ")[1].toLowerCase() }));
     } else if (/^help$/i.test(cmd)) {
       ws.send(JSON.stringify({ type: "help" }));
+    } else if (/^history$/i.test(cmd)) {
+      ws.send(JSON.stringify({ type: "history", history: cliHistory.slice(-10).join("\n") }));
+    } else if (/^clear$/i.test(cmd)) {
+      ws.send(JSON.stringify({ type: "clear" }));
     } else {
       ws.send(JSON.stringify({ type: "error", message: "Unknown command." }));
     }

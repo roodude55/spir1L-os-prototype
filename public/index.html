@@ -1,26 +1,31 @@
 <!-- public/index.html -->
-<!-- VR-native Chat/CLI: each message is a 3D block in the scene! -->
+<!-- Spiral-OS VR CLI World Builder (O-3 Pro math ready) -->
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <!-- public/index.html -->
     <meta charset="UTF-8" />
-    <title>Spiral-OS VR Chat CLI Scene</title>
+    <title>Spiral-OS VR CLI World Builder</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <!-- Serve A-Frame locally for CORB/CORS safety: -->
     <script src="aframe.min.js"></script>
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
     <a-scene>
-      <a-entity id="cameraRig">
-        <a-entity camera look-controls position="0 1.6 0"></a-entity>
+      <!-- Lighting -->
+      <a-entity light="type: ambient; color: #BBB; intensity: 0.6"></a-entity>
+      <a-entity light="type: directional; color: #fff; intensity: 0.8" position="2 6 3"></a-entity>
+      <!-- Ground -->
+      <a-plane rotation="-90 0 0" width="20" height="20" color="#111a" shadow="receive: true"></a-plane>
+      <!-- Camera Rig with WASD and Look controls -->
+      <a-entity id="cameraRig" position="0 1.6 5">
+        <a-entity camera wasd-controls look-controls></a-entity>
       </a-entity>
-      <!-- Message blocks will be injected here by app.js -->
+      <!-- VR CLI chat history blocks get injected here by app.js -->
     </a-scene>
-    <!-- Minimal CLI input, fixed HTML for now -->
+    <!-- CLI input, fixed HTML over VR for now -->
     <form id="cli-form" autocomplete="off">
-      <input id="cli-input" type="text" placeholder="Type a command (e.g. spawn box)..." autofocus />
+      <input id="cli-input" type="text" placeholder="Type CLI command (e.g. spawn box, help)..." autocomplete="off" />
     </form>
     <script src="app.js"></script>
   </body>

@@ -1,7 +1,7 @@
 {
   "name": "spiral-os-prototype",
-  "version": "0.1.2",
-  "description": "Spiral-OS VR-native Chat CLI Scene",
+  "version": "0.2.0",
+  "description": "Spiral-OS VR-native CLI World Builder (with O-3 Pro math)",
   "main": "server/server.js",
   "scripts": {
     "start": "node server/server.js"
