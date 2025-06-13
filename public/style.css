@@ -1,34 +1,30 @@
-/* spiral-os-prototype/public/style.css */
-html, body {
-  margin: 0;
-  padding: 0;
-  background: #000;
-  overflow: hidden;
-  height: 100%;
-}
-a-scene, #terminal-container {
-  width: 100vw;
-  height: 100vh;
-  position: absolute;
-  top: 0; left: 0;
-}
-#terminal-container {
-  width: 700px;
-  height: 300px;
-  background: #111;
-  color: #39ff14;
-  font-family: "Fira Mono", "Consolas", monospace;
-  font-size: 1.1em;
-  border-radius: 12px;
-  box-shadow: 0 0 16px #0f0a;
-  position: absolute;
+/* public/style.css */
+/* VR-native chat blocks, minimal HTML input style */
+html, body { margin: 0; padding: 0; overflow: hidden; background: #000; }
+a-scene { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 0; }
+
+#cli-form {
+  position: fixed;
   left: 50%;
-  top: 25%;
-  transform: translate(-50%, 0);
-  opacity: 0.95;
-  z-index: 1000;
+  bottom: 4vh;
+  transform: translateX(-50%);
+  width: 34vw;
+  max-width: 500px;
+  z-index: 10;
+  background: rgba(22,22,22,0.82);
+  border-radius: 10px;
+  box-shadow: 0 2px 16px #000a;
+  padding: 0.7em 1.1em;
+  display: flex;
 }
-.xterm {
-  background: #111;
+#cli-input {
+  flex: 1;
+  font-size: 1.1em;
+  padding: 0.23em 0.7em;
+  border-radius: 6px;
+  border: 1px solid #333;
+  background: #161819;
   color: #39ff14;
+  outline: none;
 }
+#cli-input:focus { border-color: #39ff14; }
