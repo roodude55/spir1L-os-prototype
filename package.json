@@ -1,7 +1,7 @@
 {
   "name": "spiral-os-prototype",
-  "version": "0.2.0",
-  "description": "Spiral-OS VR-native CLI World Builder (with O-3 Pro math)",
+  "version": "0.4.0",
+  "description": "Spiral-OS VR CLI with O3 math: phi-spiral, flight, sound, prime epoch, HUD compression",
   "main": "server/server.js",
   "scripts": {
     "start": "node server/server.js"
