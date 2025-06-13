@@ -1,0 +1,34 @@
+/* spiral-os-prototype/public/style.css */
+html, body {
+  margin: 0;
+  padding: 0;
+  background: #000;
+  overflow: hidden;
+  height: 100%;
+}
+a-scene, #terminal-container {
+  width: 100vw;
+  height: 100vh;
+  position: absolute;
+  top: 0; left: 0;
+}
+#terminal-container {
+  width: 700px;
+  height: 300px;
+  background: #111;
+  color: #39ff14;
+  font-family: "Fira Mono", "Consolas", monospace;
+  font-size: 1.1em;
+  border-radius: 12px;
+  box-shadow: 0 0 16px #0f0a;
+  position: absolute;
+  left: 50%;
+  top: 25%;
+  transform: translate(-50%, 0);
+  opacity: 0.95;
+  z-index: 1000;
+}
+.xterm {
+  background: #111;
+  color: #39ff14;
+}

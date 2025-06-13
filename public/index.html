@@ -1,0 +1,31 @@
+<!-- spiral-os-prototype/public/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Spiral-OS Dream Scene Prototype</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="https://cdn.jsdelivr.net/npm/aframe@1.5.0/dist/aframe.min.js"></script>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm/css/xterm.css" />
+  </head>
+  <body>
+    <a-scene>
+      <!-- Camera -->
+      <a-entity id="cameraRig">
+        <a-entity camera look-controls position="0 1.6 0"></a-entity>
+      </a-entity>
+
+      <!-- Terminal Canvas (UI overlay) -->
+      <a-entity id="terminalPanel"
+        geometry="primitive: plane; width: 1.2; height: 0.5"
+        material="color: #111; opacity: 0.95"
+        position="0 1.5 -2"
+        >
+        <div id="terminal-container"></div>
+      </a-entity>
+    </a-scene>
+    <script src="https://cdn.jsdelivr.net/npm/xterm/lib/xterm.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>

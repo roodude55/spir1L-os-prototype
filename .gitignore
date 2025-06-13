@@ -1,0 +1,5 @@
+# spiral-os-prototype/.gitignore
+node_modules/
+.DS_Store
+*.log
+.env

@@ -1,0 +1,42 @@
+// spiral-os-prototype/server/server.js
+const express = require("express");
+const http = require("http");
+const WebSocket = require("ws");
+const path = require("path");
+
+const app = express();
+const server = http.createServer(app);
+const wss = new WebSocket.Server({ server });
+
+const PORT = process.env.PORT || 8080;
+
+// Serve static files
+app.use(express.static(path.join(__dirname, "../public")));
+
+wss.on("connection", (ws) => {
+  ws.send(JSON.stringify({ echo: "Welcome to Spiral-OS Dream Scene CLI!" }));
+  ws.on("message", (msg) => {
+    const cmd = msg.toString().trim();
+    if (cmd.startsWith("spawn ")) {
+      const [, type] = cmd.split(" ");
+      if (["box", "sphere"].includes(type)) {
+        ws.send(JSON.stringify({
+          echo: `Spawning ${type}...`,
+          spawn: { type }
+        }));
+      } else {
+        ws.send(JSON.stringify({ echo: `Unknown object: ${type}` }));
+      }
+    } else if (cmd === "help") {
+      ws.send(JSON.stringify({
+        echo: "Commands: spawn box | spawn sphere | help"
+      }));
+    } else {
+      ws.send(JSON.stringify({ echo: `Unknown command: ${cmd}` }));
+    }
+  });
+});
+
+server.listen(PORT, () => {
+  console.log(`Dream Scene server running on http://localhost:${PORT}`);
+});
