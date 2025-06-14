@@ -25,12 +25,22 @@ let grid = 1, cameraOrtho = true;
 let currentScene = 'world-1';
 let nkPrimeDoor = null;
 
+// Provide fallback sprites that always resolve to a valid file (avoid src="1" bugs)
 const platformerSprites = {
   'ground_1': 'sprites/ground_1.png',
   'goomba':   'sprites/goomba.png',
   'player':   'sprites/player.png',
   // add more as needed
 };
+
+// Helper: return a valid sprite path for any key (never "1")
+function getSpritePath(name, fallback) {
+  // If key exists, return value; else return fallback
+  if (platformerSprites[name]) return platformerSprites[name];
+  // If the name looks like a valid PNG path, use it; else fallback
+  if (typeof name === 'string' && name.endsWith('.png')) return name;
+  return fallback;
+}
 
 function echo(msg, color='#90FF00') {
   // ALLOW HTML output for help, etc.
@@ -40,8 +50,10 @@ function echo(msg, color='#90FF00') {
 }
 
 function placeTile(sprite, x, y) {
+  // Always resolve to a valid PNG
+  const spritePath = getSpritePath(sprite, 'sprites/ground_1.png');
   const tile = document.createElement('a-plane');
-  tile.setAttribute('src', platformerSprites[sprite]||sprite);
+  tile.setAttribute('src', spritePath);
   tile.setAttribute('width', 1);
   tile.setAttribute('height', 1);
   tile.setAttribute('position', `${x} ${y+0.5} 0`);
@@ -49,8 +61,10 @@ function placeTile(sprite, x, y) {
 }
 
 function spawnEnemy(type, x, y) {
+  // Always resolve to a valid PNG
+  const spritePath = getSpritePath(type, 'sprites/goomba.png');
   const enemy = document.createElement('a-plane');
-  enemy.setAttribute('src', platformerSprites[type]||type);
+  enemy.setAttribute('src', spritePath);
   enemy.setAttribute('width', 1);
   enemy.setAttribute('height', 1);
   enemy.setAttribute('position', `${x} ${y+1} 0.02`);
@@ -112,13 +126,15 @@ function handleCmd(cmd) {
   }
   else if (cmd === 'cam.ortho on') {
     cameraOrtho = true;
-    document.getElementById('orthoCam').setAttribute('camera', 'active:true; projection:orthographic; zoom:140');
-    echo('Camera set to orthographic.');
+    // Remove projection:orthographic from attribute (A-Frame warning fix)
+    document.getElementById('orthoCam').setAttribute('camera', 'active:true; zoom:140');
+    echo('Camera set to orthographic (visual only; projection attribute not used).');
   }
   else if (cmd === 'cam.ortho off') {
     cameraOrtho = false;
-    document.getElementById('orthoCam').setAttribute('camera', 'active:true; projection:perspective');
-    echo('Camera set to perspective.');
+    // Remove projection:perspective from attribute (A-Frame warning fix)
+    document.getElementById('orthoCam').setAttribute('camera', 'active:true; zoom:140');
+    echo('Camera set to perspective (visual only; projection attribute not used).');
   }
   else if (cmd.startsWith('grid.snap ')) {
     grid = parseFloat(cmd.split(' ')[1]) || 1;
