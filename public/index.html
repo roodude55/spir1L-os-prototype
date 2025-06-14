@@ -2,34 +2,27 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Spiral-OS Φ-Helix + WAIICODE</title>
-  <!-- libs -->
-  <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/tone@14.8.49/build/Tone.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/xterm@5.3.0/lib/xterm.min.js"></script>
+  <meta charset="UTF-8">
+  <title>Spiral-OS Prototype VR Scene</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="style.css">
+  <!-- A-Frame & Xterm.js CDN -->
+  <script src="https://unpkg.com/aframe@1.4.2/dist/aframe.min.js"></script>
+  <script src="https://unpkg.com/xterm@5.5.0/lib/xterm.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/xterm@5.5.0/css/xterm.css" />
 </head>
 <body>
-  <a-scene background="color:#111" embedded>
-    <!-- free-flight camera -->
-    <a-entity id="cam"
-      camera look-controls
-      movement-controls="fly:true; acceleration:15"
-      position="0 1.6 10">
+  <a-scene>
+    <a-entity id="terminal" position="0 1.6 -2">
+      <a-plane color="#111" width="1.6" height="0.7"></a-plane>
+      <!-- The terminal will be drawn over this plane using a canvas -->
+      <a-entity id="terminal-canvas" geometry="primitive: plane; width: 1.5; height: 0.6"
+                material="shader: flat; transparent: true"
+                position="0 0 0.01"></a-entity>
     </a-entity>
-
-    <a-entity id="spiral-group"></a-entity>
-
-    <!-- HUD -->
-    <a-entity id="hud"
-      position="0 2.2 -1.5"
-      text="value: Spiral-OS boot…; color:#0ff; width:3; wrapCount:40;">
-    </a-entity>
+    <a-entity camera position="0 1.6 0"></a-entity>
   </a-scene>
-
-  <!-- CLI overlay -->
-  <div id="cli"></div>
-  <script src="app.js" type="module"></script>
+  <div id="xterm-container" style="display:none;"></div>
+  <script src="app.js"></script>
 </body>
 </html>

@@ -1,19 +1,15 @@
 {
-  "name": "spir1L-os",
+  "name": "spiral-os-prototype",
+  "version": "1.0.0",
   "private": true,
-  "version": "0.1.0",
-  "type": "module",
-  "workspaces": [
-    "packages/*"
-  ],
+  "main": "server/server.js",
   "scripts": {
     "start": "node server/server.js"
   },
-  "devDependencies": {
-    "@types/node": "^22.15.30",
-    "prettier": "^3.5.3"
-  },
   "dependencies": {
-    "typescript": "^5.8.3"
+    "express": "^5.1.0",
+    "ws": "^8.18.2",
+    "aframe": "^1.4.2",
+    "xterm": "^5.3.0"
   }
 }

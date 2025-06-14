@@ -1,8 +1,22 @@
 /* Path: public/style.css */
-body { margin:0; overflow:hidden; background:#111; font-family: monospace; }
-#cli {
-  position:fixed; left:0; bottom:0; width:440px; height:320px;
-  background:rgba(20,20,20,.9); color:#0f0; z-index:5;
-  box-shadow:0 0 8px #0ff; border-radius:0 6px 0 0;
+body {
+  margin: 0;
+  overflow: hidden;
+  background: #111;
 }
-.xterm { font-size:14px; line-height:1.1; }
+
+#xterm-container {
+  width: 800px;
+  height: 320px;
+}
+
+.xterm {
+  background: #111 !important;
+  color: #00FF00 !important;
+  font-family: 'Fira Mono', 'Consolas', monospace;
+  font-size: 1rem;
+}
+
+a-plane, a-entity {
+  pointer-events: none;
+}

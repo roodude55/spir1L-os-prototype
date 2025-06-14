@@ -1,6 +1,4 @@
 # Path: .gitignore
 node_modules/
-*.log
 .DS_Store
 .env
-assets/cache/*.png
