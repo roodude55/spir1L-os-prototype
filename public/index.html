@@ -8,21 +8,31 @@
   <link rel="stylesheet" href="style.css">
   <!-- A-Frame & Xterm.js CDN -->
   <script src="https://unpkg.com/aframe@1.4.2/dist/aframe.min.js"></script>
-  <script src="https://unpkg.com/xterm@5.5.0/lib/xterm.js"></script>
-  <link rel="stylesheet" href="https://unpkg.com/xterm@5.5.0/css/xterm.css" />
+  <script src="https://unpkg.com/xterm@5.3.0/lib/xterm.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/xterm@5.3.0/css/xterm.css" />
 </head>
 <body>
   <a-scene>
-    <a-entity id="terminal" position="0 1.6 -2">
-      <a-plane color="#111" width="1.6" height="0.7"></a-plane>
-      <!-- The terminal will be drawn over this plane using a canvas -->
-      <a-entity id="terminal-canvas" geometry="primitive: plane; width: 1.5; height: 0.6"
-                material="shader: flat; transparent: true"
-                position="0 0 0.01"></a-entity>
-    </a-entity>
-    <a-entity camera position="0 1.6 0"></a-entity>
+    <!-- Minimal lighting for visibility -->
+    <a-entity light="type:ambient; intensity:0.6"></a-entity>
+    <a-entity light="type:directional; intensity:0.7" position="1 2 1"></a-entity>
+    <!-- Visible floor -->
+    <a-plane rotation="-90 0 0"
+             width="40" height="40"
+             color="#222"
+             position="0 0 0"></a-plane>
+    <!-- Camera: slightly raised and pulled back for view -->
+    <a-entity camera
+              wasd-controls look-controls
+              position="0 1.7 1"></a-entity>
   </a-scene>
-  <div id="xterm-container" style="display:none;"></div>
+  <!-- HUD Terminal (toggleable) -->
+  <div id="hud-terminal-container">
+    <div id="xterm-container" tabindex="0"></div>
+    <div id="hud-instructions">
+      Press <kbd>~</kbd> or <kbd>Ctrl</kbd>+<kbd>Space</kbd> to toggle terminal. <kbd>Esc</kbd> to return to VR.
+    </div>
+  </div>
   <script src="app.js"></script>
 </body>
 </html>
