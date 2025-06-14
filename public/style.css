@@ -1,55 +1,11 @@
-/* Path: public/style.css */
-body {
-  margin: 0;
-  overflow: hidden;
-  background: #111;
+/* public/style.css */
+body { margin:0; overflow:hidden; background:#1a1a1a; }
+#cli-terminal {
+  position: fixed; left: 2vw; bottom: 4vh;
+  width: 500px; height: 320px;
+  background:rgba(25,25,32,0.93); color:#00FF90;
+  border-radius: 0 0 8px 8px;
+  box-shadow: 0 0 16px #0ff8;
+  z-index: 10;
 }
-
-#hud-terminal-container {
-  position: fixed;
-  left: 50%;
-  bottom: 10%;
-  transform: translateX(-50%);
-  z-index: 100;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  min-width: 600px;
-  max-width: 90vw;
-  pointer-events: none;    /* Wrapper stays click-through */
-}
-#xterm-container {
-  width: 600px;
-  height: 220px;
-  background: #111;
-  border: 2px solid #0f0;
-  border-radius: 8px;
-  pointer-events: auto;    /* Terminal is interactive */
-  box-shadow: 0 8px 32px #000a;
-  outline: none;
-}
-
-#hud-instructions {
-  color: #0f0;
-  margin-top: 6px;
-  font-family: monospace;
-  font-size: 0.9em;
-  background: rgba(0,0,0,0.7);
-  padding: 2px 8px;
-  border-radius: 4px;
-  user-select: none;
-  pointer-events: none;
-}
-
-.xterm {
-  background: #111 !important;
-  color: #00FF00 !important;
-  font-family: 'Fira Mono', 'Consolas', monospace;
-  font-size: 1rem;
-}
-
-a-scene {
-  width: 100vw;
-  height: 100vh;
-  display: block;
-}
+.xterm { font-size:16px; background:#101010 !important; }

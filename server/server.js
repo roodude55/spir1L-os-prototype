@@ -1,37 +1,16 @@
-// Path: server/server.js
-
-const express = require('express');
-const http = require('http');
-const WebSocket = require('ws');
-const path = require('path');
-
+// server/server.js
+import express from 'express';
+import fs from 'fs';
 const app = express();
-const server = http.createServer(app);
-const wss = new WebSocket.Server({ server });
+app.use(express.static('public'));
+app.use(express.json());
 
-const PORT = process.env.PORT || 8080;
-
-app.use(express.static(path.join(__dirname, '../public')));
-
-wss.on('connection', ws => {
-  ws.on('message', msg => {
-    let data;
-    try {
-      data = JSON.parse(msg);
-    } catch (e) { return; }
-    if (data.cmd) {
-      const cmd = data.cmd.trim();
-      if (cmd.startsWith('spawn ')) {
-        const obj = cmd.split(' ')[1];
-        ws.send(JSON.stringify({type: 'echo', message: `Spawning ${obj}...`}));
-        ws.send(JSON.stringify({type: 'spawn', object: obj}));
-      } else {
-        ws.send(JSON.stringify({type: 'echo', message: `Unknown command: ${cmd}`}));
-      }
-    }
-  });
+app.post('/spritegen', async (req, res) => {
+  // Placeholder: just return local fallback or echo URL
+  const { name } = req.body;
+  const path = `public/sprites/${name}.png`;
+  if (fs.existsSync(path)) res.json({ url: `/sprites/${name}.png` });
+  else res.json({ url: '/sprites/ground_1.png' });
 });
 
-server.listen(PORT, () => {
-  console.log(`Spiral-OS prototype server running: http://localhost:${PORT}`);
-});
+app.listen(8080, () => console.log('Server running at http://localhost:8080'));
