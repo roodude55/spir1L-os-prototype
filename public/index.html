@@ -8,13 +8,11 @@
   <link rel="stylesheet" href="style.css">
   <!-- A-Frame & Xterm.js -->
   <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
-  <script src="https://unpkg.com/xterm@5.3.0/lib/xterm.js"></script>
-  <link rel="stylesheet" href="https://unpkg.com/xterm@5.3.0/css/xterm.css" />
 </head>
 <body>
   <a-scene id="scene" background="color:#232323" embedded>
     <a-entity id="orthoCam"
-              camera="active:true; projection:orthographic; zoom:140"
+              camera="active:true; zoom:140"
               position="0 3 10"
               wasd-controls="enabled:false"></a-entity>
     <a-entity light="type:ambient; intensity:0.7"></a-entity>
@@ -26,7 +24,12 @@
     <!-- Doorway (hidden unless NK-prime) -->
     <a-entity id="doorway" visible="false"></a-entity>
   </a-scene>
-  <div id="cli-terminal"><div id="xterm"></div></div>
+  <div id="cli-column">
+    <div id="cli-log"></div>
+    <form id="cli-chatbox" autocomplete="off">
+      <input type="text" id="cli-input" placeholder="Type command..." autofocus autocomplete="off" />
+    </form>
+  </div>
   <script src="app.js" type="module"></script>
 </body>
 </html>

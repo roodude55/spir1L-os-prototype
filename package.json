@@ -1,15 +1,13 @@
 {
-  "name": "spiral-os-prototype",
+  "name": "spiral-os-retro",
+  "type": "module",
   "version": "1.0.0",
-  "private": true,
   "main": "server/server.js",
   "scripts": {
     "start": "node server/server.js"
   },
   "dependencies": {
-    "express": "^5.1.0",
-    "ws": "^8.18.2",
-    "aframe": "^1.4.2",
-    "xterm": "^5.3.0"
+    "express": "^4.19.2",
+    "ws": "^8.16.0"
   }
 }

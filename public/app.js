@@ -1,8 +1,22 @@
 // public/app.js
-import { phi, GOLDEN_ANGLE, isPrime } from '../server/math-core.js';
 
-const term = new Terminal({ theme:{ background:'#181a20', foreground:'#00FF90' } });
-term.open(document.getElementById('xterm'));
+// -- math-core.js shim (browser safe) --
+const phi = (1 + Math.sqrt(5)) / 2;
+const GOLDEN_ANGLE = 360 * (1 - 1/phi);
+function isPrime(n) {
+  if (n < 2) return false;
+  if (n % 2 === 0) return n === 2;
+  if (n % 3 === 0) return n === 3;
+  for (let i = 5; i * i <= n; i += 6)
+    if (n % i === 0 || n % (i+2) === 0) return false;
+  return true;
+}
+// END shim
+
+const cliLog = document.getElementById('cli-log');
+const cliInput = document.getElementById('cli-input');
+const cliForm = document.getElementById('cli-chatbox');
+
 let cmd = '', scene = document.getElementById('scene'), levelRoot = document.getElementById('level-root');
 
 let mode = 'pi1LoT'; // 'pi1LoT' (build) or 'play'
@@ -19,7 +33,10 @@ const platformerSprites = {
 };
 
 function echo(msg, color='#90FF00') {
-  term.write(`\r\n\x1b[38;2;${parseInt(color.slice(1,3),16)};${parseInt(color.slice(3,5),16)};${parseInt(color.slice(5,7),16)}m${msg}\x1b[0m\r\n$ `);
+  // ALLOW HTML output for help, etc.
+  const span = `<div class="cli-echo" style="color:${color};margin-bottom:2px;">${msg}</div>`;
+  cliLog.insertAdjacentHTML('beforeend', span);
+  cliLog.scrollTop = cliLog.scrollHeight;
 }
 
 function placeTile(sprite, x, y) {
@@ -53,7 +70,7 @@ function showDoorway(x, y, targetScene) {
 function nkPrimeCheck(n, x, y, targetScene) {
   if (isPrime(n)) {
     showDoorway(x, y, targetScene);
-    echo(`\u2728 NK-prime doorway revealed at x=${x}! Enter to transition.`, '#FFD700');
+    echo(`✨ NK-prime doorway revealed at x=${x}! Enter to transition.`, '#FFD700');
   }
 }
 
@@ -76,17 +93,14 @@ function enablePlayerControls() {
   echo('Player controls enabled (stub)', '#00AFFF');
 }
 
-term.onKey(({key,domEvent})=>{
-  if (domEvent.key === 'Enter') {
-    term.write('\r\n');
-    handleCmd(cmd.trim());
-    cmd = '';
-  } else if (domEvent.key === 'Backspace') {
-    if (cmd.length) { term.write('\b \b'); cmd = cmd.slice(0,-1);}
-  } else if (key.length === 1) {
-    term.write(key);
-    cmd += key;
-  }
+// CLI handling
+cliForm.addEventListener('submit', e => {
+  e.preventDefault();
+  const input = cliInput.value.trim();
+  if (!input) return;
+  echo(`$ ${input}`, '#aaf0e0');
+  handleCmd(input);
+  cliInput.value = '';
 });
 
 function handleCmd(cmd) {
@@ -146,22 +160,21 @@ function handleCmd(cmd) {
     echo(`Spiral beat = ${beatMs} ms`);
   }
   else if (cmd === 'help') {
-    echo(`Platformer Creator Commands:
-      scene.new <slug>
-      cam.ortho on|off
-      grid.snap <step>
-      asset.add sprite <name> "<prompt>"
-      tile.place <sprite> <x> <y>
-      enemy.spawn <type> <x> <y>
-      doorway.set nkprime <prime> <scene>
-      test.play
-      toggle auto_spiral
-      set spiral_speed <s>
-      help
-    `,'#F0F090');
+    echo(`<b>Platformer Creator Commands:</b><br>
+      <span style="color:#b8e7c7">scene.new &lt;slug&gt;</span><br>
+      <span style="color:#b8e7c7">cam.ortho on|off</span><br>
+      <span style="color:#b8e7c7">grid.snap &lt;step&gt;</span><br>
+      <span style="color:#b8e7c7">asset.add sprite &lt;name&gt; "&lt;prompt&gt;"</span><br>
+      <span style="color:#b8e7c7">tile.place &lt;sprite&gt; &lt;x&gt; &lt;y&gt;</span><br>
+      <span style="color:#b8e7c7">enemy.spawn &lt;type&gt; &lt;x&gt; &lt;y&gt;</span><br>
+      <span style="color:#b8e7c7">doorway.set nkprime &lt;prime&gt; &lt;scene&gt;</span><br>
+      <span style="color:#b8e7c7">test.play</span><br>
+      <span style="color:#b8e7c7">toggle auto_spiral</span><br>
+      <span style="color:#b8e7c7">set spiral_speed &lt;s&gt;</span><br>
+      <span style="color:#b8e7c7">help</span>`);
   }
   else echo('Unknown or not yet implemented command.', '#FFAAAA');
 }
 
-term.write('$ ');
-echo("Spiral-OS Platformer Creator Ready. Type 'help' for commands.");
+// Initial message
+echo("<b>Spiral-OS Platformer Creator Ready.</b> Type <b>help</b> for commands.", "#ccffcc");
