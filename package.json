@@ -6,6 +6,9 @@
   "workspaces": [
     "packages/*"
   ],
+  "scripts": {
+    "start": "node server/server.js"
+  },
   "devDependencies": {
     "@types/node": "^22.15.30",
     "prettier": "^3.5.3"
