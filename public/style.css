@@ -1,31 +1,8 @@
-/* public/style.css */
-/* VR CLI and scene styling */
-html, body { margin: 0; padding: 0; overflow: hidden; background: #000; }
-a-scene { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 0; }
-
-/* CLI input overlay */
-#cli-form {
-  position: fixed;
-  left: 50%;
-  bottom: 4vh;
-  transform: translateX(-50%);
-  width: 32vw;
-  max-width: 540px;
-  z-index: 10;
-  background: rgba(22,22,24,0.88);
-  border-radius: 10px;
-  box-shadow: 0 2px 16px #000d;
-  padding: 0.7em 1.1em;
-  display: flex;
+/* Path: public/style.css */
+body { margin:0; overflow:hidden; background:#111; font-family: monospace; }
+#cli {
+  position:fixed; left:0; bottom:0; width:440px; height:320px;
+  background:rgba(20,20,20,.9); color:#0f0; z-index:5;
+  box-shadow:0 0 8px #0ff; border-radius:0 6px 0 0;
 }
-#cli-input {
-  flex: 1;
-  font-size: 1.1em;
-  padding: 0.23em 0.7em;
-  border-radius: 6px;
-  border: 1px solid #333;
-  background: #18191a;
-  color: #39ff14;
-  outline: none;
-}
-#cli-input:focus { border-color: #39ff14; }
+.xterm { font-size:14px; line-height:1.1; }

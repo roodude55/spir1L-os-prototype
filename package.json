@@ -1,13 +1,16 @@
 {
-  "name": "spiral-os-prototype",
-  "version": "0.4.0",
-  "description": "Spiral-OS VR CLI with O3 math: phi-spiral, flight, sound, prime epoch, HUD compression",
-  "main": "server/server.js",
-  "scripts": {
-    "start": "node server/server.js"
+  "name": "spir1L-os",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "workspaces": [
+    "packages/*"
+  ],
+  "devDependencies": {
+    "@types/node": "^22.15.30",
+    "prettier": "^3.5.3"
   },
   "dependencies": {
-    "express": "^4.19.2",
-    "ws": "^8.16.0"
+    "typescript": "^5.8.3"
   }
 }

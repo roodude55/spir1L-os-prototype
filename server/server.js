@@ -1,39 +1,26 @@
-// server/server.js
-// Spiral-OS Dream Scene CLI backend with basic world-building commands
+// Path: server/server.js
+import express from 'express';
+import fs      from 'fs';
+import crypto  from 'crypto';
+import { execSync } from 'child_process';
+import fetch   from 'node-fetch';
 
-const express = require("express");
-const http = require("http");
-const WebSocket = require("ws");
-const path = require("path");
+const app = express(); app.use(express.json()); app.use(express.static('public'));
+const CACHE = 'assets/cache'; if(!fs.existsSync(CACHE)) fs.mkdirSync(CACHE,{recursive:true});
 
-const app = express();
-const server = http.createServer(app);
-const wss = new WebSocket.Server({ server });
+function sha(p){ return crypto.createHash('sha256').update(p).digest('hex').slice(0,16); }
 
-app.use(express.static(path.join(__dirname, "../public")));
-
-// CLI command history for session
-let cliHistory = [];
-
-wss.on("connection", (ws) => {
-  ws.on("message", (message) => {
-    let cmd = message.toString().trim();
-    cliHistory.push(cmd);
-    if (/^spawn (box|sphere|diamond)$/i.test(cmd)) {
-      ws.send(JSON.stringify({ type: "spawn", object: cmd.split(" ")[1].toLowerCase() }));
-    } else if (/^help$/i.test(cmd)) {
-      ws.send(JSON.stringify({ type: "help" }));
-    } else if (/^history$/i.test(cmd)) {
-      ws.send(JSON.stringify({ type: "history", history: cliHistory.slice(-10).join("\n") }));
-    } else if (/^clear$/i.test(cmd)) {
-      ws.send(JSON.stringify({ type: "clear" }));
-    } else {
-      ws.send(JSON.stringify({ type: "error", message: "Unknown command." }));
-    }
-  });
+app.post('/imggen', async (req,res)=>{
+  const {prompt}=req.body || {}; const id=sha(prompt);
+  const file=`${CACHE}/${id}.png`;
+  if(!fs.existsSync(file)){
+    // TODO: replace with real DALL·E/SDXL call
+    const tmp = await fetch('https://placehold.co/256x256/2222FF/EEE?text=AI+Art').then(r=>r.buffer());
+    fs.writeFileSync(file,tmp);
+    fs.appendFileSync(`${CACHE}/assets-log.md`,`- ${new Date().toISOString()} | ${prompt} -> ${file}\n`);
+    try { execSync(`git add ${file} ${CACHE}/assets-log.md && git commit -m "chore(asset): ${id}" && git push`,{stdio:'ignore'}); }catch{}
+  }
+  res.json({url:`/${file}`});
 });
 
-const PORT = process.env.PORT || 8080;
-server.listen(PORT, () => {
-  console.log(`Spiral-OS Prototype server running at http://localhost:${PORT}`);
-});
+app.listen(8080,()=>console.log('Spiral-OS dev server http://localhost:8080'));

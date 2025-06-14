@@ -1,150 +1,107 @@
-// public/app.js
-// Spiral-OS VR CLI: Lighting, motion controls, persistent CLI history, and world-building commands
+// Path: public/app.js
+import { phi, GOLDEN_ANGLE } from 'https://unpkg.com/@spiral/math-core@latest/dist/index.js';
 
-const cliForm = document.getElementById("cli-form");
-const cliInput = document.getElementById("cli-input");
-const scene = document.querySelector("a-scene");
+//////////////////////  CONSTANTS & GLOBALS  //////////////////////
+const objectOrder = ['cell','dna','multicell','plant','flower',
+                     'tree','fungus','creature','house','utility',
+                     'school','library','cityhall','penguin'];
+const poetic = [
+  'A cell breathes life anew…','DNA spirals deeper into truth…',
+  'Multicellular dreams awaken…','Plants whisper green secrets…',
+  'Flowers bloom in golden ratios…','Trees reach towards infinity…',
+  'Fungus quietly nurtures decay…','Creatures stir from cosmic slumber…',
+  'Houses shelter evolving thought…','Utilities pulse with unseen rhythm…',
+  'Schools whisper collective wisdom…','Libraries archive endless spirals…',
+  'City halls govern harmonic order…'
+];
 
-// O-3 Pro math constants (to be imported from math-core in future)
-const PHI = (1 + Math.sqrt(5)) / 2;
-const GOLDEN_ANGLE = 360 * (1 - 1/PHI);
-const OMEGA = 0.000437;
-const FPS_IDEAL = 90;
+let frame=0, phiN=0, autoOn=false, mode='phi43';   // modes: phi43 | phi5
+let beatMs = 1300;                                 // default 1.3 s
+let logBuf=[], synth, scene, group;
 
-// VR CLI message block config
-const msgBlock = {
-  width: 1.7,
-  height: 0.22,
-  gap: 0.035,
-  baseY: 1.15,
-  baseZ: -1.5,
+//////////////////////  HELPERS  //////////////////////
+const hud   = ()=>document.getElementById('hud');
+const cam   = ()=>document.querySelector('#cam');
+const color = n => `hsl(${(GOLDEN_ANGLE*n)%360},90%,55%)`;
+const pos   = n => {
+  const r = 0.35*Math.pow(phi, n/12);
+  const θ = n*GOLDEN_ANGLE*Math.PI/180;
+  return [ r*Math.cos(θ), n*0.12, -r*Math.sin(θ) ];
 };
+const isPrime = n => { if(n<2) return false; for(let i=2;i<=Math.sqrt(n);i++) if(n%i===0) return false; return true; };
 
-let socket;
-let vrMessages = [];
-const maxVRMessages = 15;
+function log(msg){
+  logBuf.push(msg); if(logBuf.length>40) logBuf.shift();
+  hud().setAttribute('text','value',logBuf.join('\n'));
+}
+//////////////////////  AI ASSET FETCH  //////////////////////
+async function getTexture(prompt){
+  const res = await fetch('/imggen',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt})});
+  const {url} = await res.json();
+  return url;     // stub returns placeholder on dev
+}
 
-// Color cycling for world objects (phiHue)
-function phiHue(n) { return `hsl(${(n * GOLDEN_ANGLE) % 360}, 70%, 56%)`; }
+async function spawn(n){
+  if(!scene)  scene  = document.querySelector('a-scene');
+  if(!group)  group  = document.getElementById('spiral-group');
 
-// CLI log block
-function addVRMessage(text, type = "system-msg") {
-  if (vrMessages.length >= maxVRMessages) {
-    const old = vrMessages.shift();
-    if (old.entity) scene.removeChild(old.entity);
+  const type = objectOrder[n % objectOrder.length];
+  const p    = pos(n);
+  const tex  = await getTexture(`iridescent ${type} φ-spiral`);
+  const ent  = document.createElement('a-entity');
+
+  ent.setAttribute('geometry', `primitive:${type==='dodecahedron'?'dodecahedron':'sphere'}; radius:${0.1+0.03*(n%3)}`);
+  ent.setAttribute('material', `color:${color(n)}; src:${tex}; metalness:0.4; roughness:0.15`);
+  ent.setAttribute('position', p.join(' '));
+  group.appendChild(ent);
+
+  // NK prime epoch pivot
+  if(isPrime(n)){
+    group.object3D.rotation.y += Math.PI/2;
+    group.object3D.scale.multiplyScalar(phi);
+    log(`✨ NK-Prime pivot @ Φ${n}`);
   }
-  const idx = vrMessages.length;
-  const y = msgBlock.baseY + (maxVRMessages - 1 - idx) * (msgBlock.height + msgBlock.gap);
-  let color = "#222", textColor = "#39ff14";
-  if (type === "user-msg")      { color = "#191927"; textColor = "#39ff14"; }
-  else if (type === "error-msg"){ color = "#3d1a1a"; textColor = "#ff3b3b"; }
-  else if (type === "spawn-msg"){ color = "#333"; textColor = "#ffd700"; }
-  else if (type === "system-msg"){ color = "#233"; textColor = "#6ff"; }
-  // Block entity
-  const block = document.createElement("a-entity");
-  block.setAttribute("geometry", { primitive: "plane", width: msgBlock.width, height: msgBlock.height });
-  block.setAttribute("material", { color, opacity: 0.91, side: "double" });
-  block.setAttribute("position", `0 ${y} ${msgBlock.baseZ}`);
-  block.setAttribute("text", {
-    value: text,
-    align: "left",
-    color: textColor,
-    width: msgBlock.width * 1.1,
-    wrapCount: 44,
-    baseline: "center",
-    shader: "msdf",
-    font: "monoid",
-    zOffset: 0.01
+
+  // camera fly-to each 13th object
+  if(n%13===0) cam().setAttribute('position',`${p[0]} ${p[1]+0.6} ${p[2]+2}`);
+}
+
+//////////////////////  AUDIO  //////////////////////
+function initSound(){
+  synth = new Tone.Synth({oscillator:{type:'sine'}}).toDestination();
+  Tone.Transport.bpm.value = 161.8; Tone.Transport.start();
+}
+function blip(n,prime){
+  if(!synth) initSound();
+  const f = 220*Math.pow(phi,(n%12)/12);
+  synth.triggerAttackRelease(f,'8n');
+  if(prime) synth.triggerAttackRelease(f*4,'16n');
+}
+
+//////////////////////  AUTO-SPIRAL LOOP  //////////////////////
+async function stepAuto(){
+  if(!autoOn) return;
+  phiN++;
+  await spawn(phiN);
+  blip(phiN,isPrime(phiN));
+  log(`Φ${phiN}: ${poetic[phiN%poetic.length]}`);
+  setTimeout(stepAuto, beatMs);
+}
+
+//////////////////////  CLI  //////////////////////
+function startCLI(){
+  const term = new Terminal({theme:{background:'#141414',foreground:'#0f0'}});
+  term.open(document.getElementById('cli'));
+  term.write('$ ');
+  term.onData(raw=>{
+    const cmd = raw.trim();
+    const args = cmd.split(' ');
+    if(cmd==='toggle auto_spiral'){ autoOn=!autoOn; term.write(`\r\n[${autoOn?'ON':'OFF'}] auto_spiral\r\n$ `); if(autoOn) stepAuto(); }
+    else if(args[0]==='set' && args[1]==='spiral_speed'){ beatMs=Math.max(50,Math.abs(parseFloat(args[2]))*1000); term.write(`\r\nbeat=${beatMs}ms\r\n$ `); }
+    else if(args[0]==='mode'){ mode=args[1]||'phi43'; term.write(`\r\nmode=${mode}\r\n$ `); }
+    else term.write(`\r\n? cmd\r\n$ `);
   });
-  scene.appendChild(block);
-  vrMessages.push({text, type, entity: block});
-  // Restack all
-  vrMessages.forEach((msg, idx2) => {
-    const y2 = msgBlock.baseY + (maxVRMessages - 1 - idx2) * (msgBlock.height + msgBlock.gap);
-    msg.entity.setAttribute("position", `0 ${y2} ${msgBlock.baseZ}`);
-  });
+  log('Type "toggle auto_spiral" then "mode phi5" or "mode phi43".');
 }
 
-// VR world object spawner
-let objectCount = 0;
-function spawnObject(type) {
-  objectCount++;
-  let el = document.createElement("a-entity");
-  const color = phiHue(objectCount);
-  // Random in front of camera, but spread out a bit
-  const pos = `${(Math.random() * 3 - 1.5).toFixed(2)} 1.1 ${(Math.random() * -2.5 - 1.5).toFixed(2)}`;
-  if (type === "box") {
-    el.setAttribute("geometry", "primitive: box; depth: 0.5; height: 0.5; width: 0.5");
-    el.setAttribute("material", `color: ${color}`);
-    el.setAttribute("position", pos);
-    el.setAttribute("shadow", "cast: true");
-  } else if (type === "sphere") {
-    el.setAttribute("geometry", "primitive: sphere; radius: 0.3");
-    el.setAttribute("material", `color: ${color}`);
-    el.setAttribute("position", pos);
-    el.setAttribute("shadow", "cast: true");
-  } else if (type === "diamond") {
-    el.setAttribute("geometry", "primitive: octahedron; radius: 0.27");
-    el.setAttribute("material", `color: ${color}; metalness: 0.7; roughness: 0.2`);
-    el.setAttribute("position", pos);
-    el.setAttribute("shadow", "cast: true");
-  }
-  scene.appendChild(el);
-}
-
-function connectWebSocket() {
-  socket = new WebSocket(`ws://${window.location.host}`);
-  socket.onopen = () => addVRMessage("[Connected to Dream Scene Server]", "system-msg");
-  socket.onmessage = (event) => {
-    try {
-      const msg = JSON.parse(event.data);
-      if (msg.type === "spawn" && msg.object) {
-        spawnObject(msg.object);
-        addVRMessage(`[Spawned ${msg.object}]`, "spawn-msg");
-      } else if (msg.type === "help") {
-        addVRMessage(
-          "Available commands:\n" +
-          "  spawn box        – Add a box to the world\n" +
-          "  spawn sphere     – Add a sphere to the world\n" +
-          "  spawn diamond    – Add a diamond (octahedron)\n" +
-          "  clear            – Remove all objects\n" +
-          "  history          – Show CLI history\n" +
-          "  help             – Show this help\n", "system-msg");
-      } else if (msg.type === "history" && msg.history) {
-        addVRMessage(msg.history, "system-msg");
-      } else if (msg.type === "clear") {
-        // Remove all world objects but keep chat blocks
-        Array.from(scene.querySelectorAll("a-entity"))
-          .filter(e => e.hasAttribute("geometry") && !e.hasAttribute("camera"))
-          .forEach(e => { if (!vrMessages.find(m => m.entity === e)) scene.removeChild(e); });
-        addVRMessage("[All objects cleared]", "system-msg");
-      } else if (msg.type === "error" && msg.message) {
-        addVRMessage(`[Error] ${msg.message}`, "error-msg");
-      }
-    } catch {
-      addVRMessage(`[Server]: ${event.data}`, "system-msg");
-    }
-  };
-  socket.onclose = () => addVRMessage("[Disconnected. Refresh to reconnect.]", "error-msg");
-}
-
-let cliHistory = [];
-cliForm.addEventListener("submit", (e) => {
-  e.preventDefault();
-  const cmd = cliInput.value.trim();
-  if (!cmd) return;
-  cliHistory.push(cmd);
-  addVRMessage(cmd, "user-msg");
-  if (socket && socket.readyState === 1) {
-    socket.send(cmd);
-  } else {
-    addVRMessage("[Error] Not connected to server.", "error-msg");
-  }
-  cliInput.value = "";
-});
-
-window.addEventListener("DOMContentLoaded", () => {
-  connectWebSocket();
-  addVRMessage("Spiral-OS Dream Scene CLI [VR-native, O-3 Pro math ready]", "system-msg");
-  addVRMessage("Type 'help' to see available commands.", "system-msg");
-});
+window.onload = startCLI;
